@@ -1,0 +1,773 @@
+/*
+ * Sección "PER in the DRM Continuum": diagrama estático informativo.
+ * No filtra ni interactúa con la lista de recursos (ver README de la sección en index.html).
+ *
+ * Colores de franja: son los 5 valores fijos que pidió el negocio (no tocar):
+ * Preparedness / Anticipatory Action / Response / Recovery / Programmes band.
+ * Van directamente sobre el gris de la página: esta sección nunca lleva fondo blanco de tarjeta.
+ */
+
+:root {
+  /* Geometría del diagrama: rail fijo + 3 gaps fijos; el resto (Preparedness/Response/Recovery)
+     se reparte en proporción, así que crece o encoge junto con el ancho del contenedor.
+     Las fracciones están medidas en píxeles sobre la imagen de referencia (ver index.html). */
+  --continuum-rail: 2.75rem;
+  --continuum-gap: 1rem;
+  --continuum-fixed: calc(var(--continuum-rail) + var(--continuum-gap) * 3);
+  --continuum-aa-frac: 0.3077; /* inicio de Anticipatory Action (línea punteada azul + margen de la píldora) */
+  --continuum-resp-frac: 0.5; /* inicio de Response = línea punteada roja = borde de la columna Preparedness */
+  --continuum-icon-gap: 1.1rem; /* hueco que deja la línea punteada a cada lado de los iconos (centro → extremo de la línea) */
+
+  /* Valores fijos del negocio: no recolorear. */
+  --continuum-preparedness: rgba(0, 144, 215, 0.1);
+  --continuum-anticipatory: rgba(0, 144, 215, 0.7);
+  --continuum-response: rgba(231, 55, 67, 0.7);
+  --continuum-recovery: rgba(1, 30, 65, 0.7);
+  --continuum-programmes: rgba(0, 151, 117, 0.7);
+  /* Sin valor de negocio para estas dos: reutilizan el azul de Anticipatory Action por coherencia. */
+  --continuum-blue: #0090d7;
+  --continuum-red: #e73743;
+
+  --continuum-icon-fg: #0c447c;
+  --continuum-icon-bg: rgb(12 68 124 / 0.08);
+}
+
+.continuum {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* Los <p> usados como píldoras/barras no deben llevar el margen de párrafo por defecto del navegador:
+   sumaba altura de más en Readiness, Branches, DRR y, sobre todo, en Programmes.
+   :where() para que esto tenga especificidad cero y no compita con el margin real de cada píldora. */
+:where(.continuum) p {
+  margin: 0;
+}
+
+.continuum__scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Ancho fijo por dentro (ver .continuum__canvas): en pantallas estrechas esto scrollea en vez de apretar el diagrama. */
+  padding-bottom: var(--space-2);
+}
+
+.continuum__canvas {
+  /* Mismo ancho que las secciones de abajo (filtros / lista): 100% del contenedor.
+     min-width solo actúa como suelo en pantallas estrechas, para forzar el scroll horizontal
+     en vez de apretar el contenido (ver .continuum__scroll). Las columnas de la rejilla son
+     proporcionales (fr), así que al estirarse el lienzo, todo el contenido interno se alarga
+     con él sin dejar hueco: ver --continuum-* arriba. */
+  width: 100%;
+  min-width: 64rem;
+  /* El único fondo de todo el diagrama: el gris de las tarjetas del catálogo.
+     Las 5 franjas de color pintan por transparencia encima de este gris, nunca de blanco. */
+  background: var(--color-surface);
+  border-radius: var(--radius);
+}
+
+.continuum__inner {
+  position: relative;
+  /* Contexto de apilado propio: las líneas verticales (z-index -3) y el fondo azul (-2) se quedan dentro
+     y todo lo demás (botones, píldoras, textos, popups) pinta por encima de ellas. */
+  isolation: isolate;
+  padding: var(--space-4);
+}
+
+/* ---------- Línea de tiempo superior ---------- */
+/* Todo se posiciona por coordenada X absoluta, para que quede exactamente alineado
+   con los divisores verticales que caen por el resto del diagrama (mismos valores "left"). */
+
+.continuum__timeline {
+  position: relative;
+  height: 2.25rem;
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.continuum__timeline-track {
+  position: absolute;
+  top: 0.5rem;
+  height: 0;
+  border-top: 2px dotted var(--continuum-blue);
+}
+
+/* Tres tramos, con un hueco real a cada lado de los iconos en vez de que la línea los atraviese. */
+.continuum__timeline-track--reduce {
+  left: 0;
+  right: calc((100% - var(--continuum-fixed)) * (1 - var(--continuum-aa-frac)) + var(--continuum-icon-gap));
+}
+
+.continuum__timeline-track--mid {
+  left: calc(var(--continuum-fixed) + (100% - var(--continuum-fixed)) * var(--continuum-aa-frac) + var(--continuum-icon-gap));
+  right: calc((100% - var(--continuum-fixed)) * (1 - var(--continuum-resp-frac)) + var(--continuum-icon-gap));
+}
+
+.continuum__timeline-track--respond {
+  left: calc(var(--continuum-fixed) + (100% - var(--continuum-fixed)) * var(--continuum-resp-frac) + var(--continuum-icon-gap));
+  right: 0;
+  border-top-color: var(--continuum-red);
+}
+
+.continuum__timeline-label {
+  position: absolute;
+  top: 1.1rem;
+  white-space: nowrap;
+}
+
+.continuum__timeline-label--reduce {
+  left: 0;
+  color: var(--continuum-blue);
+}
+
+/* Al principio del tramo rojo (justo tras el rayo), igual que "Reduce impact" va al principio del azul. */
+.continuum__timeline-label--respond {
+  left: calc(var(--continuum-fixed) + (100% - var(--continuum-fixed)) * var(--continuum-resp-frac) + var(--continuum-icon-gap));
+  color: var(--continuum-red);
+}
+
+/* Solo el icono, sin círculo/chip de color detrás. */
+.continuum__timeline-icon {
+  position: absolute;
+  top: 0.5rem;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+}
+
+/* El tamaño real lo manda el CSS (anula el width/height="22" del SVG inline). */
+.continuum__timeline-icon svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+/* Coincide con la línea punteada azul (--continuum-aa-frac). */
+.continuum__timeline-icon--warning {
+  left: calc(var(--continuum-fixed) + (100% - var(--continuum-fixed)) * var(--continuum-aa-frac));
+  color: var(--continuum-blue);
+}
+
+.continuum__timeline-icon--alert {
+  left: calc(var(--continuum-fixed) + (100% - var(--continuum-fixed)) * var(--continuum-resp-frac));
+  /* Rojo de la plataforma Go (círculo del icono de la llama), no el de las líneas. */
+  color: var(--color-accent);
+}
+
+/* Triángulo azul y círculo de la llama miden lo mismo (32px, como en Go). */
+.continuum__timeline-icon--warning svg,
+.continuum__timeline-icon--alert svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Marcan, cayendo por todo el diagrama, dónde empieza Anticipatory Action y dónde empieza Response.
+   Posición proporcional (no rem fijo) para que se mantengan alineados al alargarse el diagrama. */
+.continuum__divider {
+  position: absolute;
+  /* Empieza debajo del icono, con un pelín de margen. Se mide desde el borde exterior de .continuum__inner,
+     así que suma su padding (1rem) + centro del icono (0.5rem) + mitad del SVG de 2rem (1rem) + ~0.2rem de aire. */
+  top: 2.7rem;
+  /* Hasta la mitad del margen inferior del recuadro gris exterior (medido: ver diag), no solo hasta Programmes.
+     Si cambia el "top", hay que ajustar esta altura en lo mismo para que el extremo inferior no se mueva. */
+  height: 24.28rem;
+  /* Misma coordenada X que el icono. Los iconos se colocan dentro del contenido (sin el padding de 1rem de
+     .continuum__inner) y las líneas dentro de su borde exterior: se compensa aquí ese padding en ambos lados
+     (si no, quedaban desviadas del icono: 5px la azul, 1px la roja). translateX(-50%) centra la línea de 2px. */
+  left: calc(var(--space-4) + var(--continuum-fixed) + (100% - 2 * var(--space-4) - var(--continuum-fixed)) * var(--continuum-aa-frac));
+  transform: translateX(-50%);
+  /* Mismo azul que la línea horizontal del timeline (opaco) y mismo grosor que la roja vertical (3px). */
+  border-left: 3px dotted var(--continuum-blue);
+  pointer-events: none;
+  /* Por debajo del recuadro azul de Preparedness (-2) pero por encima del gris de National Society Development (fondo del lienzo). */
+  z-index: -3;
+}
+
+.continuum__divider--response {
+  left: calc(var(--space-4) + var(--continuum-fixed) + (100% - 2 * var(--space-4) - var(--continuum-fixed)) * var(--continuum-resp-frac));
+  /* Roja #f5333f (la de la llama), opaca, del mismo grosor que la azul (3px) y discontinua como ella.
+     top baja 0.2rem respecto a la azul (empieza justo en el borde del círculo de 32px) y la altura sube lo mismo,
+     para que el extremo inferior siga alineado con la línea azul. */
+  top: 2.5rem;
+  height: 24.48rem;
+  border-left: 3px dotted var(--color-accent);
+  opacity: 1;
+}
+
+/* ---------- Rejilla de fases ---------- */
+/* Rail fijo; Preparedness/Response/Recovery en fr. Partían de lo medido en la imagen de
+   referencia (31.5 : 13 : 13.5), pero se ajustó a 29 : 13.5 : 15.5 para dar más aire a
+   Response/Recovery (ver --continuum-resp-frac, debe coincidir con prep/(prep+resp+rec)). */
+.continuum__phases {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--continuum-rail) 29fr 13.5fr 15.5fr;
+  column-gap: var(--continuum-gap);
+  row-gap: var(--space-4);
+}
+
+/* Envuelve TODO Preparedness, incluidas las franjas de ancho completo de abajo (DRR, Programmes). */
+.continuum__wash {
+  grid-column: 2 / 5;
+  grid-row: 1 / 9;
+  background: var(--continuum-preparedness);
+  border-radius: var(--radius);
+  /* Por encima de las líneas verticales (z-index -3): el azul (10% de opacidad) las cubre, no al revés. */
+  position: relative;
+  z-index: -2;
+}
+
+.continuum__rail {
+  grid-column: 1;
+  grid-row: 1 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Misma tipografía, grosor y color que "PREPAREDNESS" (solo que en vertical). */
+.continuum__rail-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.continuum__prep-title {
+  grid-column: 2;
+  grid-row: 1;
+  padding: var(--space-2) var(--space-4) 0;
+  /* Junta la fila 1 con la 2 sin tocar el resto: row-gap es igual para todas las filas, pero un margin
+     negativo solo acorta esta fila. Más negativo = más pegadas. */
+  margin-bottom: -0.5rem;
+}
+
+.continuum__prep-title h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+/* A caballo entre el rail gris y el azul de Preparedness: ni dentro de uno ni del otro. */
+.continuum__nsd-tag {
+  position: absolute;
+  top: 3rem;
+  /* Un poco más adentro del azul, para no solaparse con el texto "NATIONAL SOCIETY DEVELOPMENT". */
+  left: calc(var(--continuum-rail) + 3rem);
+  transform: translateX(-50%);
+  z-index: 3;
+  padding: 0.2rem var(--space-3);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.9);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+  white-space: nowrap;
+}
+
+/* Readiness y Anticipatory Action comparten la misma franja (igual que Response/Recovery), y se
+   solapan: Readiness (más ancha, arranca antes) va en una capa por encima de Anticipatory Action.
+   Los porcentajes son --continuum-aa-frac/--continuum-resp-frac reexpresados como % de esta columna
+   (que mide el 50% del contenido total), para que sigan cayendo justo en sus líneas al alargarse el lienzo. */
+.continuum__readiness-pill {
+  grid-column: 2;
+  grid-row: 2 / 4;
+  position: relative;
+  z-index: 2;
+  align-self: start;
+  /* margin-right negativo: llega justo hasta la línea roja y se solapa un poco con Response.
+     margin-top negativo: la sube un poco. Ambos medidos contra el renderizado real, no teóricos. */
+  margin: -0.3rem -2.1rem 0 55%;
+  padding: 0.15rem var(--space-3);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.85);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
+.continuum__aa-pill {
+  grid-column: 2;
+  grid-row: 2 / 4;
+  position: relative;
+  z-index: 1;
+  align-self: start;
+  /* 67.14%: medido directamente contra la línea azul renderizada (borde izquierdo de la línea = borde de la píldora) (no la fracción teórica — la columna
+     empieza tras 1 gap, no tras los 3 que asume --continuum-fixed, así que el cálculo teórico no cuadraba).
+     margin-right: -2.1rem, medido igual que en Readiness — llega justo hasta la línea roja y se
+     solapa un poco con Response. */
+  margin: 0.8rem -2.1rem 0 67.14%;
+  padding: var(--space-1) var(--space-4);
+  border-radius: 999px;
+  background: var(--continuum-anticipatory);
+  color: #fff;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+}
+
+/* La barra Response/Recovery: dos píldoras redondeadas por completo que se solapan en el centro.
+   Ambas franjas son semitransparentes (70%), así que donde se superponen el navegador las mezcla
+   solo y aparece ese tono vino de transición — igual que en el original, sin necesidad de un color aparte. */
+.continuum__rr-bar {
+  grid-column: 3 / 5;
+  grid-row: 2 / 4;
+  position: relative;
+  z-index: 0;
+  align-self: start;
+  height: 2.5rem;
+  /* Margen a la derecha, igual que el resto de cajas respecto al borde del azul de Preparedness. */
+  margin-right: var(--space-4);
+}
+
+.continuum__rr-segment {
+  position: absolute;
+  top: 0;
+  width: 53%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0 var(--space-2);
+  color: #fff;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+
+.continuum__rr-segment--response {
+  left: 0;
+  z-index: 1;
+  background: var(--continuum-response);
+}
+
+.continuum__rr-segment--recovery {
+  right: 0;
+  z-index: 2;
+  background: var(--continuum-recovery);
+}
+
+/* ---------- Bloques de capacidad PER (tarjetas blancas translúcidas) ---------- */
+/* Ninguna caja llega al borde del bloque Preparedness: todas llevan margen lateral,
+   así se ve claramente que están "dentro" y no pegadas al borde exterior. */
+
+.continuum-block {
+  position: relative;
+  min-width: 0;
+  margin: 0 var(--space-4);
+  background: rgb(255 255 255 / 0.8);
+  border-radius: var(--radius);
+  padding: var(--space-1) var(--space-3) var(--space-3);
+  display: grid;
+  gap: var(--space-1);
+}
+
+.continuum-block__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.continuum-block__title {
+  flex: 0 1 auto; /* el texto es el disparador; su ::before (abajo) extiende el área clicable a toda la tarjeta */
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* Misma proporción que las columnas de fase de arriba (29 : 13.5 : 15.5), para que
+   Operational quede bajo RESPONSE y Post-operational bajo RECOVERY. */
+.continuum-block__pills {
+  display: grid;
+  grid-template-columns: 29fr 13.5fr 15.5fr;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+}
+
+.continuum-block__pills li {
+  list-style: none;
+  min-width: 0;
+}
+
+.continuum-block__pills-group {
+  display: flex;
+  flex-wrap: wrap;
+  /* row-gap más ancho que el column-gap: más aire solo entre filas cuando envuelve, no dentro de cada píldora. */
+  gap: var(--space-2) var(--space-2);
+  /* Ancho natural (al texto), centrado dentro del espacio de su columna — no estirado. */
+  justify-self: center;
+}
+
+.continuum-subpill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+  white-space: nowrap;
+}
+
+.continuum-subpill--center {
+  /* Ancho natural, centrado en el espacio de su columna — no estirado a lo ancho. */
+  justify-self: center;
+}
+
+.continuum__cap-block {
+  grid-column: 2 / 5;
+  grid-row: 4;
+}
+
+.continuum__branches-bar {
+  grid-column: 2 / 5;
+  grid-row: 5;
+  margin: 0 var(--space-4);
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.8);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+/* Readiness Check / Rapid Response Check / Learnings from Operations: misma altura de una línea
+   que "Preparedness and Response Capacity enhancement in Branches" — el título nunca baja de línea,
+   se trunca con "…" si no cabe, y la píldora de idiomas se queda siempre a su derecha. */
+.continuum-check {
+  min-width: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  /* Texto + icono de enlace juntos y centrados en el botón (el hueco lo da el margin del ::after). */
+  justify-content: center;
+  gap: 0;
+  background: rgb(255 255 255 / 0.8);
+  border-radius: 999px;
+  padding: var(--space-1) var(--space-3);
+}
+
+.continuum-check__title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.continuum__check--prep {
+  grid-column: 2;
+  grid-row: 6;
+  /* justify-self:start = ancho natural (al contenido) en vez de estirarse a toda la columna. */
+  justify-self: start;
+  /* Más padding lateral que el resto de checks: queda algo más pequeña que "Readiness", no tan justa al texto. */
+  padding-left: 2rem;
+  padding-right: 2rem;
+  /* Centrada bajo "Readiness" (medido: sus centros coinciden). */
+  margin-left: 21.5rem;
+}
+
+.continuum__check--resp {
+  grid-column: 3;
+  grid-row: 6;
+  justify-self: start;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  /* Centrada bajo "RESPONSE" (medido: sus centros coinciden). */
+  margin-left: 2.25rem;
+}
+
+.continuum__check--rec {
+  grid-column: 4;
+  grid-row: 6;
+  justify-self: start;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  /* Centrada bajo "RECOVERY" (medido). */
+  margin-left: 0.15rem;
+}
+
+/* ---------- Franjas inferiores, ancho completo ---------- */
+
+.continuum__drr {
+  grid-column: 2 / 5;
+  grid-row: 7;
+  margin: 0 var(--space-4);
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  background: var(--continuum-anticipatory);
+  color: #fff;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+}
+
+.continuum__programmes {
+  position: relative; /* contiene el área clicable que extiende el título (ver .continuum__programmes-title::before) */
+  grid-column: 2 / 5;
+  grid-row: 8;
+  /* Margen abajo: para que no toque el borde inferior del azul de Preparedness, que ahora la envuelve. */
+  margin: 0 var(--space-4) var(--space-3);
+  /* Arriba / laterales / abajo. Arriba reducido a propósito (era var(--space-2)): menos verde encima del título. */
+  padding: var(--space-1) var(--space-5) var(--space-2);
+  border-radius: 999px;
+  background: var(--continuum-programmes);
+  display: grid;
+  gap: var(--space-1);
+}
+
+.continuum__programmes-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.continuum__programmes-title {
+  flex: 0 1 auto; /* el texto es el disparador; su ::before (abajo) extiende el área clicable a toda la franja */
+  min-width: 0;
+  padding-left: var(--space-2);
+  color: #fff;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+}
+
+.continuum__programmes-pills {
+  display: flex;
+  flex-wrap: wrap;
+  /* row-gap más ancho que el column-gap: más aire solo entre filas cuando envuelve, no dentro de cada píldora. */
+  gap: var(--space-3) var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.continuum__programmes-pills li {
+  padding: var(--space-1) var(--space-2);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.8);
+  /* Mismo color y peso que las subpíldoras (Self-Assessment…): ver .continuum-subpill. */
+  color: var(--color-text-dim);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  white-space: nowrap;
+}
+
+/* ---------- Indicador de idiomas + popover ---------- */
+
+.lang-trigger-wrap {
+  position: relative;
+  flex: none;
+  margin-left: auto;
+}
+
+.lang-trigger,
+.reference-course {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.2rem var(--space-3);
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  background: none;
+  color: var(--color-accent-dark);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.lang-trigger:hover,
+.reference-course:hover,
+.lang-trigger[aria-expanded='true'],
+.reference-course[aria-expanded='true'] {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* Readiness Check / Rapid Response Check / Learnings from Operations: solo el icono, sin texto,
+   para dejarle sitio al título largo en una caja compacta de una línea. */
+.lang-trigger--icon-only {
+  padding: 0.35rem;
+}
+
+/* Elemento clicable sin botón visible: el propio bloque abre el popup de idiomas. */
+.lang-clickable {
+  position: relative;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+/* NSD↔NSP se posiciona con position:absolute; sin esto la regla de arriba lo pasaría a relative y lo descolocaría. */
+.continuum__nsd-tag.lang-clickable {
+  position: absolute;
+}
+
+/* Hover: halo suave y difuminado alrededor del elemento (sin cambiar su fondo).
+   Sombra = --go-ui-box-shadow-sm de la plataforma Go. Para una más marcada, usar la md:
+   0 1pt 5pt -2pt rgb(0 0 0 / .375). La transición (0.15s) está en .lang-clickable.
+   Solo en los elementos pedidos — Readiness y Anticipatory Action quedan fuera a propósito. */
+.continuum__nsd-tag.lang-clickable:hover,
+.continuum__branches-bar.lang-clickable:hover,
+.continuum-subpill.lang-clickable:hover,
+.continuum-check.lang-clickable:hover,
+.continuum__programmes-pills li.lang-clickable:hover,
+.reference-box.lang-clickable:hover,
+a.reference-box:hover {
+  box-shadow: 0 1pt 4pt rgb(0 0 0 / 0.2);
+}
+
+/* Tarjeta / franja entera clicable, con los botones de dentro por encima ("stretched link"):
+   el título es el disparador (botón accesible, con su icono) y su ::before se estira sobre toda la tarjeta. Para que se
+   estire hasta la tarjeta, el título deja de ser position:relative (regla .lang-clickable) y la tarjeta es el bloque de
+   referencia; por eso el popup se abre bajo la tarjeta (o sobre la franja de Programmes) y no bajo el título.
+   Los botones de dentro (píldoras, subpíldoras…) son .lang-clickable con position:relative y van después en el DOM:
+   pintan por encima del ::before y reciben ellos el clic y el hover. Hover sobre el resto de la tarjeta: halo de la
+   tarjeta con sus esquinas; hover sobre un botón de dentro: solo el halo de ese botón. */
+.continuum-block__title.lang-clickable,
+.continuum__programmes-title.lang-clickable {
+  position: static;
+}
+
+.continuum-block__title::before,
+.continuum__programmes-title::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  transition: box-shadow 0.15s ease;
+}
+
+.continuum__programmes-title::before {
+  border-radius: 999px; /* la franja de Programmes es una píldora */
+}
+
+.continuum-block__title:hover::before,
+.continuum__programmes-title:hover::before {
+  box-shadow: 0 1pt 4pt rgb(0 0 0 / 0.2);
+}
+
+/* Icono de enlace externo tras el texto: avisa de que el botón lleva a algo al pulsar.
+   Es un pseudo-elemento con máscara SVG (mismo trazo que el de los botones del popup), así que
+   toma el color del texto de cada botón (currentColor) y no toca el HTML ni el aria-label.
+   Mismos elementos que el hover — Readiness y Anticipatory Action quedan fuera. */
+.continuum__nsd-tag.lang-clickable::after,
+.continuum__branches-bar.lang-clickable::after,
+.continuum-subpill.lang-clickable::after,
+.continuum-check.lang-clickable::after,
+.continuum__programmes-pills li.lang-clickable::after,
+.reference-box.lang-clickable::after,
+.continuum-block__title.lang-clickable::after,
+.continuum__programmes-title.lang-clickable::after,
+a.reference-box::after,
+.reference-link.lang-clickable::after,
+a.reference-link::after {
+  content: '';
+  display: inline-block;
+  flex: none;
+  width: 0.85em;
+  height: 0.85em;
+  margin-left: 0.45em;
+  vertical-align: -0.05em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M4.5 2H2v8h8V7.5M7 2h3v3M10 2L5.5 6.5' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M4.5 2H2v8h8V7.5M7 2h3v3M10 2L5.5 6.5' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Elementos del diagrama que todavía no tienen enlace en el Excel: reservan el hueco del icono (invisible) para que su
+   tamaño y el de sus vecinos sea el mismo con y sin enlace, y para que no salte nada mientras se cargan los datos. */
+[data-continuum-link]:not(.lang-clickable)::after {
+  content: '';
+  display: inline-block;
+  flex: none;
+  width: 0.85em;
+  height: 0.85em;
+  margin-left: 0.45em;
+  vertical-align: -0.05em;
+  visibility: hidden;
+}
+
+.continuum__programmes-pills li[data-continuum-link]:not(.lang-clickable)::after {
+  margin-left: 0.3em;
+}
+
+/* Icono más pegado al texto en los botones de sectores: son 9 en una fila y cada px cuenta para que quepan. */
+.continuum__programmes-pills li.lang-clickable::after {
+  margin-left: 0.3em;
+}
+
+.lang-popover {
+  /* Se cuelga de elementos con su propia tipografía (títulos en mayúsculas, con interletraje): no la hereda. */
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: normal; /* las píldoras son nowrap: el título del popup (largo) debe poder partirse en líneas */
+  text-align: left;
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  right: 0;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  width: max-content;
+  max-width: 16rem;
+  padding: var(--space-3);
+  background: #fff;
+  border: 0.5px solid rgb(0 0 0 / 0.1);
+  border-radius: 8px;
+  box-shadow: 0 1pt 5pt -2pt rgb(0 0 0 / 0.375);
+}
+
+/* Título del popup (columna "Popup" del Excel): ocupa toda la primera línea, encima de los botones de idioma. */
+.lang-popover__title {
+  flex: 1 0 100%;
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+}
+
+.lang-popover[hidden] {
+  display: none;
+}
+
+/* Anclado por la izquierda: NSD↔NSP está pegado al borde izquierdo del diagrama y, anclado por la derecha
+   como el resto, el popup se saldría por la izquierda y lo recortaría el contenedor de scroll. */
+.lang-popover--start {
+  right: auto;
+  left: 0;
+}
+
+.lang-popover--up {
+  top: auto;
+  bottom: calc(100% + 0.375rem);
+}
+
+@media (max-width: 40rem) {
+  .continuum-block {
+    padding: var(--space-3);
+  }
+}

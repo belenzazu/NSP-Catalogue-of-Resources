@@ -1,0 +1,768 @@
+/*
+ * Diseño del catálogo — valores tomados del CSS de la plataforma Go.
+ * Todo lo visual cuelga de los tokens de :root.
+ */
+
+/* Tipografía: Poppins es la de Go pero no está en Assets/. Mientras tanto se carga Montserrat (Assets/)
+   como respaldo; si se añade Poppins a Assets/, basta con declarar su @font-face y ya se usa. */
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../Assets/Montserrat/Montserrat-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-family: 'Poppins', 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-base: 0.875rem;
+  --font-size-xs: calc(var(--font-size-base) * 0.714);
+  --font-size-sm: calc(var(--font-size-base) * 0.857);
+  --font-size-md: var(--font-size-base);
+  --font-size-lg: calc(var(--font-size-base) * 1.129);
+  --font-size-xl: calc(var(--font-size-base) * 1.429);
+  --font-size-2xl: calc(var(--font-size-base) * 1.714);
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --color-page: #ffffff;
+  --color-surface: #f5f5f5;
+  --color-text: rgb(0 0 0 / 0.8);
+  --color-text-dim: rgb(0 0 0 / 0.5);
+  --color-separator: rgb(0 0 0 / 0.1);
+  --color-separator-subtle: rgb(0 0 0 / 0.05);
+  --color-accent: #f5333f;
+  /* Para texto rojo sobre blanco: #f5333f no llega a contraste 4.5:1, #da283d sí. */
+  --color-accent-dark: #da283d;
+
+  --radius: 0.5rem;
+  --shadow: 0 1pt 4pt rgb(0 0 0 / 0.2);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.5;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Layout ---------- */
+
+.catalogue {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+  display: grid;
+  gap: var(--space-6);
+}
+
+/* Título de sección compartido: "PER in the DRM Continuum" y "Resource library" usan exactamente el mismo estilo. */
+.section-title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+/* Sección "Resource library": título + (filtros y lista). Misma separación título→contenido que el continuum. */
+.library {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.library__body {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.panel {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* ---------- Filtros ---------- */
+
+.filters {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.filters__grid {
+  display: grid;
+  /* Min pensado para que los filtros actuales (6) quepan siempre en una sola fila en escritorio. */
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-4);
+}
+
+/* Sin tarjeta alrededor: el gris va solo en la caja del select/buscador, no en la etiqueta ni en su espacio. */
+.field {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.field__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-dim);
+}
+
+/* Desplegable de casillas (varias opciones a la vez). Caja cerrada = mismo aspecto que tenía el select. */
+.multi {
+  position: relative;
+}
+
+.multi__trigger {
+  display: block;
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 2rem 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius);
+  background-color: var(--color-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23000' stroke-opacity='.6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.75rem;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.multi__text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.multi__trigger:disabled {
+  cursor: default;
+  color: var(--color-text-dim);
+}
+
+/* Al pulsar/enfocar (filtros y buscador): solo una línea roja fina abajo, sin rodear la caja. */
+.multi__trigger:focus-visible,
+.multi__trigger[aria-expanded='true'],
+.search__input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 -1px 0 var(--color-accent);
+}
+
+.multi__panel {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  z-index: 10;
+  min-width: 100%;
+  width: max-content;
+  max-width: 22rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  padding: var(--space-1);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.multi__panel[hidden] {
+  display: none;
+}
+
+/* El último filtro está en el borde derecho: su panel crece hacia la izquierda para no salirse. */
+.field:last-child .multi__panel {
+  left: auto;
+  right: 0;
+}
+
+.multi__option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.multi__option:hover,
+.multi__option:focus-within {
+  background: var(--color-surface);
+}
+
+.multi__option input {
+  flex: none;
+  margin: 0.2rem 0 0;
+  accent-color: var(--color-accent-dark);
+  cursor: pointer;
+}
+
+.filters__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.search {
+  position: relative;
+  flex: 1 1 16rem;
+  max-width: 24rem;
+  color: var(--color-text-dim);
+}
+
+.search__icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-3);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search__input {
+  width: 100%;
+  height: 2.25rem;
+  padding: 0 var(--space-3) 0 2.25rem;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-sm);
+}
+
+.search__input::placeholder {
+  color: var(--color-text-dim);
+}
+
+.text-button {
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--color-accent-dark);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.text-button:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Lista de recursos ---------- */
+
+.results {
+  display: grid;
+  gap: var(--space-4);
+  scroll-margin-top: var(--space-4);
+}
+
+.results__summary {
+  margin: 0;
+  text-align: right;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+}
+
+.resource-list {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resource-card,
+.message {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+}
+
+.message {
+  box-shadow: var(--shadow);
+}
+
+.resource-card {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5);
+}
+
+.resource-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.resource-card__title {
+  flex: 1 1 20rem;
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.4;
+}
+
+.pill {
+  flex: none;
+  padding: 0 var(--space-3);
+  border-radius: 999px;
+  background: var(--color-separator-subtle);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.8;
+  white-space: nowrap;
+}
+
+.resource-card__description {
+  margin: 0;
+}
+
+.resource-card__meta {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+}
+
+.resource-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  background: none;
+  color: var(--color-accent-dark);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.link-button:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.link-button svg {
+  flex: none;
+}
+
+.resource-card__no-link {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+}
+
+.message {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-3);
+  padding: var(--space-5);
+}
+
+.message p {
+  margin: 0;
+}
+
+/* ---------- Paginación: números + flechas ---------- */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.pagination__list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page-nav,
+.page-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 var(--space-2);
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-text-dim);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.page-nav:hover:not(:disabled),
+.page-number:hover:not([aria-current='page']) {
+  background: var(--color-separator-subtle);
+  color: var(--color-text);
+}
+
+.page-nav:disabled {
+  color: var(--color-separator);
+  cursor: default;
+}
+
+.page-number[aria-current='page'] {
+  background: var(--color-accent-dark);
+  color: #fff;
+  font-weight: var(--font-weight-semibold);
+}
+
+.page-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  color: var(--color-text-dim);
+  user-select: none;
+}
+
+@media (max-width: 40rem) {
+  .catalogue {
+    padding: var(--space-4) var(--space-4) var(--space-6);
+    gap: var(--space-5);
+  }
+
+  .filters,
+  .resource-card,
+  .message {
+    padding: var(--space-4);
+  }
+
+  .filters__grid {
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+    gap: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* ---------- Sección desplegable (NSP Reference materials) ---------- */
+/* Tarjeta gris como el resto del catálogo. La cabecera entera es el botón; la marquita de la derecha gira al abrir. */
+
+.reference {
+  /* Contexto de apilado propio, por encima de las secciones de abajo: los popups de los boxes pueden caer sobre ellas. */
+  position: relative;
+  z-index: 5;
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border-radius: var(--radius);
+}
+
+.reference__title {
+  margin: 0;
+  /* Mismo estilo de título que el desplegable de la plataforma Go (heading nivel 3). */
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.125;
+  text-transform: uppercase;
+}
+
+.reference__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+/* Marquita de Go: cuadrícula 24x24, dibujada hacia arriba, a 1.33em (--go-ui-height-icon-multiplier) de 0.875rem.
+   Cerrado se gira 180° (apunta abajo); al abrir vuelve a apuntar arriba. */
+.reference__icon {
+  position: relative;
+  display: flex;
+  flex: none;
+  border-radius: 999px;
+}
+
+.reference__chevron {
+  display: block;
+  width: 1.164rem;
+  height: 1.164rem;
+  transform: rotate(180deg);
+  transition: transform 0.2s;
+}
+
+.reference.is-open .reference__chevron {
+  transform: none;
+}
+
+/* Efecto al pasar el cursor, como el "visual feedback" de los botones de Go: un círculo que nace del centro de la
+   marquita y crece hasta cubrirla, con un halo alrededor. Se colorea en el hover de abajo. */
+.reference__icon::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: inherit;
+  transition: background-color 0.2s ease-in-out, width 0.2s ease-in-out, height 0.2s ease-in-out,
+    top 0.2s ease-in-out, left 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Al pasar el cursor o pulsar: marquita y halo en el rojo de la plataforma (#f5333f). El halo es ese rojo al 5%, como en Go. */
+.reference__toggle:hover .reference__icon,
+.reference__toggle:active .reference__icon {
+  color: var(--color-accent);
+}
+
+.reference__toggle:hover .reference__icon::before,
+.reference__toggle:active .reference__icon::before {
+  --feedback-color: color-mix(in srgb, var(--color-accent) 5%, transparent);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--feedback-color);
+  box-shadow: 0 0 0 0.5rem var(--feedback-color);
+}
+
+.reference__intro {
+  margin: var(--space-4) 0 0;
+}
+
+/* Despliegue animado de la altura (0fr → 1fr) sin conocer la altura del contenido. */
+.reference__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s;
+}
+
+.reference.is-open .reference__panel {
+  grid-template-rows: 1fr;
+}
+
+/* El despliegue recorta (overflow hidden) solo mientras se anima; con el panel abierto y asentado (.is-settled, ver
+   js/reference.js) se libera para que los popups de los boxes no queden cortados. */
+.reference.is-settled .reference__panel-inner {
+  overflow: visible;
+}
+
+.reference__panel-inner {
+  display: grid;
+  gap: var(--space-4);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.reference__panel-inner > :first-child {
+  margin-top: var(--space-4);
+}
+
+.reference__panel-inner > :last-child {
+  margin-bottom: 0;
+}
+
+/* Los 3 boxes del desplegable. Rejilla de Go: hasta 4 columnas, mínimo 12rem por columna, hueco spacing-md (1.125rem). */
+.reference__boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(12rem, calc((100% - 3 * 1.125rem) / 4)), 1fr));
+  gap: 1.125rem;
+}
+
+/* El popup de idiomas (js/continuum.js + .lang-popover en continuum.css) se abre desde el propio box: el hover (halo)
+   y el icono de enlace externo se los da continuum.css, que ya lista este elemento. */
+.reference-box {
+  text-decoration: none;
+  transition: box-shadow 0.15s ease;
+  display: flex;
+  align-items: center;
+  min-height: 4rem;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Subtítulo de cada fila de boxes dentro del desplegable ("PER Reference packs"). Un poco más de aire por encima. */
+.reference__subtitle {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.125;
+}
+
+/* Grupo 2 (PER Reference packs): fila ligera de enlaces de texto con icono, sin caja ni fondo. El icono de enlace
+   externo lo pone continuum.css (.reference-link.lang-clickable::after) y el popup de idiomas js/continuum.js. */
+.reference__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-6);
+}
+
+.reference-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-accent-dark);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.reference-link:hover {
+  text-decoration: underline;
+}
+
+/* Elemento aparte: "algo que haces" (curso virtual externo), no algo que consultas. En la misma fila que los packs,
+   pegado a la derecha. Su diseño y su hover (relleno rojo) son EXACTAMENTE los del botón "languages": comparte reglas
+   con .lang-trigger en continuum.css; aquí solo va lo propio de un <a>. */
+/* Contenedor de los botones de curso (normalmente uno): pegado a la derecha de la fila de packs. */
+.reference__courses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.reference-course {
+  text-decoration: none;
+}
+
+.reference-course svg {
+  flex: none;
+}
+
+/* Misma forma y hover que "languages", pero a mayor escala (letra 14px en vez de 10px). El selector lleva .reference
+   delante para ganar a las reglas compartidas de continuum.css, que se cargan después.
+   Para más o menos tamaño, tocar estos valores. */
+.reference .reference-course {
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-md);
+}
+
+.reference .reference-course svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+
+/* ---------- Maqueta: pestañas de sección de la plataforma Go ---------- */
+/* Réplica de las pestañas "tab" de Go (uppercase, medium; la activa en blanco, roja, con bordes finos y una línea roja
+   debajo del texto). La línea gris de fondo se dibuja con una sombra interior para no recortarla al hacer scroll
+   horizontal en pantallas estrechas. */
+
+.section-tabs {
+  /* Aire hasta la sección de debajo: se suma al hueco de 2rem que ya hay entre secciones (total 5rem). */
+  margin-bottom: var(--space-7);
+  display: flex;
+  justify-content: safe center;
+  gap: var(--space-3);
+  padding-bottom: 1px;
+  overflow-x: auto;
+  box-shadow: inset 0 -1px 0 var(--color-separator);
+}
+
+.section-tab {
+  position: relative;
+  flex: none;
+  padding: 1.1rem var(--space-5);
+  border: 1px solid transparent;
+  border-bottom: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.section-tab:hover:not(.is-active) {
+  color: var(--color-accent-dark);
+}
+
+/* La activa tapa 1px de la línea gris de abajo, así queda "abierta" hacia el contenido. */
+.section-tab.is-active {
+  margin-bottom: -1px;
+  padding-bottom: calc(1.1rem + 1px);
+  border-color: var(--color-separator);
+  background: var(--color-page);
+  color: var(--color-accent-dark);
+}
+
+.section-tab.is-active::after {
+  content: '';
+  position: absolute;
+  right: 1.9rem;
+  bottom: 0;
+  left: 1.9rem;
+  height: 3px;
+  background: var(--color-accent-dark);
+}

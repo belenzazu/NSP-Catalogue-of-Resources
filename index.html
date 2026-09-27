@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catalogue of Resources</title>
+  <link rel="stylesheet" href="css/catalogue.css">
+  <link rel="stylesheet" href="css/continuum.css">
+  <link rel="stylesheet" href="css/channels.css">
+</head>
+<body>
+  <main class="catalogue">
+    <h1 class="visually-hidden">Catalogue of Resources</h1>
+
+    <!-- MAQUETA del encabezado de pestañas de la plataforma Go: en producción ya lo pinta la propia web y esto se
+         embebe debajo, así que este bloque solo está para mostrar el modelo completo. Enlaces provisionales. -->
+    <nav class="section-tabs" aria-label="Sections (mock-up)">
+      <a class="section-tab" href="#">Global Summary</a>
+      <a class="section-tab" href="#">Global Performance</a>
+      <a class="section-tab is-active" href="#" aria-current="page">Catalogue of Resources</a>
+    </nav>
+
+    <!-- Sección desplegable (cerrada por defecto). Textos provisionales: sustituir por el contenido real. -->
+    <section class="reference" data-collapsible aria-labelledby="reference-title">
+      <h2 class="reference__title" id="reference-title">
+        <button class="reference__toggle" type="button" id="reference-toggle" aria-expanded="false" aria-controls="reference-panel" data-collapsible-toggle>
+          <span>NSP Reference materials</span>
+          <!-- Mismo trazo que la marquita de la plataforma Go (chevron hacia arriba en cuadrícula 24x24); cerrado se gira 180°. -->
+          <span class="reference__icon"><svg class="reference__chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m 11.887 10.94 l 4.95 4.95 l 1.415 -1.414 l -6.364 -6.364 l -6.365 6.364 l 1.414 1.414 l 4.95 -4.95 Z" fill="currentColor"/></svg></span>
+        </button>
+      </h2>
+      <p class="reference__intro">Introductory text for the NSP reference materials goes here.</p>
+      <div class="reference__panel" id="reference-panel" role="region" aria-labelledby="reference-toggle" data-collapsible-panel>
+        <div class="reference__panel-inner">
+          <!-- Grupo 1 · Base metodológica: tarjetas blancas. Cada una abre el mismo popup de idiomas que el resto
+               (lo monta js/lang-popup.js con los datos del Excel). -->
+          <div class="reference__boxes" id="reference-boxes">
+            <!-- Los boxes se pintan desde la hoja "PER Links" del Excel (Section = NSP Reference Materials, Type of Resource = Core document): js/reference.js -->
+          </div>
+
+          <!-- Grupo 2 · PER Reference packs: fila ligera de enlaces de texto con icono, sin tarjeta. Mismo popup de idiomas.
+               El curso va en la misma fila, pegado a la derecha y con botón propio: no es un documento que se consulta
+               sino algo que se hace (curso virtual externo). href provisional. -->
+          <h3 class="reference__subtitle">PER Reference packs</h3>
+          <div class="reference__links">
+            <!-- Los packs se pintan aquí desde la hoja "PER Links" del Excel (Type of Resource = Folder): js/reference.js -->
+            <!-- Botón del curso: texto y enlace salen de la hoja "PER Links" (Section = NSP Reference Materials, Type = Course): js/reference.js -->
+            <div class="reference__courses" id="reference-courses"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sección informativa: no filtra ni interactúa con la lista de recursos de abajo. -->
+    <section class="continuum" aria-label="PER in the DRM Continuum">
+      <h2 class="section-title">PER in the DRM Continuum</h2>
+      <div class="continuum__scroll">
+        <div class="continuum__canvas">
+          <div class="continuum__inner">
+            <!--
+              Divisores + iconos del timeline: posición proporcional (no rem fijo), definida en
+              continuum.css vía --continuum-aa-frac / --continuum-resp-frac, medidas en píxeles
+              sobre la imagen de referencia. Así se alargan junto con el resto del diagrama.
+            -->
+            <div class="continuum__divider" aria-hidden="true"></div>
+            <div class="continuum__divider continuum__divider--response" aria-hidden="true"></div>
+
+            <div class="continuum__timeline">
+              <span class="continuum__timeline-track continuum__timeline-track--reduce"></span>
+              <span class="continuum__timeline-track continuum__timeline-track--mid"></span>
+              <span class="continuum__timeline-track continuum__timeline-track--respond"></span>
+              <span class="continuum__timeline-icon continuum__timeline-icon--warning">
+                <svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true" focusable="false"><path d="M8 2.2L14.2 13H1.8L8 2.2z" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 6.3v3" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11.2" r="0.7" fill="#fff"/></svg>
+              </span>
+              <span class="continuum__timeline-icon continuum__timeline-icon--alert">
+                <!-- Mismo icono que la plataforma Go en su línea de tiempo: círculo rojo de 32px (#f5333f) con llama blanca. -->
+                <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="16" fill="currentColor"/><path d="M16 6.5C16.6 10 20.6 12 22 16.4 23.2 20.3 21 25 16 25.4 11 25 8.8 20.3 10 16.4c.5-1.6 1.7-2.6 2.5-3.6.4 1.6 1.1 2.4 2 2.7C14.2 12 14.8 8.8 16 6.5z" fill="#fff"/><path d="M16 25.4c-2.6-.3-3.8-2.3-3.1-4.2.4-1.1 1.4-1.7 2.1-2.8.3 1.2 1 1.8 1.5 1.9 1.1.9 2.8 2.4 2.4 3.8-.3 1-1.3 1.2-2.9 1.3z" fill="currentColor"/></svg>
+              </span>
+              <span class="continuum__timeline-label continuum__timeline-label--reduce">Reduce impact</span>
+              <span class="continuum__timeline-label continuum__timeline-label--respond">Respond to impact</span>
+            </div>
+
+            <div class="continuum__phases">
+            <div class="continuum__wash" aria-hidden="true"></div>
+
+            <div class="continuum__rail">
+              <span class="continuum__rail-label">NATIONAL SOCIETY DEVELOPMENT</span>
+            </div>
+
+            <div class="continuum__prep-title">
+              <h3>PREPAREDNESS</h3>
+            </div>
+
+            <!-- A caballo entre el rail gris y el azul de Preparedness. -->
+            <span class="continuum__nsd-tag" data-continuum-link="NSD-NSP">NSD↔NSP</span>
+
+            <p class="continuum__readiness-pill">READINESS</p>
+
+            <p class="continuum__aa-pill">Anticipatory Action</p>
+
+            <div class="continuum__rr-bar">
+              <span class="continuum__rr-segment continuum__rr-segment--response">RESPONSE</span>
+              <span class="continuum__rr-segment continuum__rr-segment--recovery">RECOVERY</span>
+            </div>
+
+            <!-- Barra completa (izda a derecha, dentro de Preparedness): un solo bloque con los 5 hitos como píldoras iguales.
+                 Como el resto de elementos, su título abre el popup de idiomas al clic (con el icono de enlace). -->
+            <div class="continuum-block continuum__cap-block">
+              <div class="continuum-block__head">
+                <span class="continuum-block__title" data-continuum-link>PER Full Capacity Enhancement</span>
+              </div>
+              <ul class="continuum-block__pills">
+                <li class="continuum-block__pills-group">
+                  <span class="continuum-subpill" data-continuum-link>Self-Assessment</span>
+                  <span class="continuum-subpill" data-continuum-link>Simulation</span>
+                  <span class="continuum-subpill" data-continuum-link>Supported data collection</span>
+                </li>
+                <li class="continuum-subpill continuum-subpill--center" data-continuum-link>Operational</li>
+                <li class="continuum-subpill continuum-subpill--center" data-continuum-link>Post-operational</li>
+              </ul>
+            </div>
+
+            <p class="continuum__branches-bar" data-continuum-link>Preparedness and Response Capacity enhancement in Branches</p>
+
+            <div class="continuum-check continuum__check--prep" data-continuum-link>
+              <span class="continuum-check__title" title="Readiness Check">Readiness Check</span>
+            </div>
+
+            <div class="continuum-check continuum__check--resp" data-continuum-link>
+              <span class="continuum-check__title" title="Rapid Response Check">Rapid Response Check</span>
+            </div>
+
+            <div class="continuum-check continuum__check--rec" data-continuum-link>
+              <span class="continuum-check__title" title="Learnings from Operations">Learnings from Operations</span>
+            </div>
+
+            <p class="continuum__drr">DISASTER RISK REDUCTION</p>
+
+            <div class="continuum__programmes">
+              <div class="continuum__programmes-head">
+                <p class="continuum__programmes-title" data-continuum-link>PROGRAMMES AND SERVICES, SECTORS AND CROSS-CUTTING AREAS</p>
+              </div>
+              <ul class="continuum__programmes-pills">
+                <li data-continuum-link>Migration and Displacement</li>
+                <li data-continuum-link>Climate and environment</li>
+                <li data-continuum-link>Protection</li>
+                <li data-continuum-link>PGI</li>
+                <li data-continuum-link>CEA</li>
+                <li data-continuum-link>Health</li>
+                <li data-continuum-link>WASH</li>
+                <li data-continuum-link>Shelter</li>
+                <li data-continuum-link>Livelihoods</li>
+              </ul>
+            </div>
+            </div>
+            <!-- /.continuum__phases -->
+          </div>
+          <!-- /.continuum__inner -->
+        </div>
+      </div>
+    </section>
+
+    <section class="library" aria-labelledby="library-title">
+    <h2 class="section-title" id="library-title">Resource library</h2>
+    <div class="library__body">
+    <section class="filters" aria-label="Filters">
+      <div class="filters__grid" id="filter-grid"></div>
+      <div class="filters__footer">
+        <div class="search">
+          <svg class="search__icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+            <circle cx="7" cy="7" r="4.75" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10.6 10.6L14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <label class="visually-hidden" for="search-input">Search resources</label>
+          <input class="search__input" id="search-input" type="search" placeholder="Search" autocomplete="off" disabled>
+        </div>
+        <button class="text-button" id="clear-filters" type="button" hidden>Clear filters</button>
+      </div>
+    </section>
+
+    <section class="results" id="results" aria-label="Resources">
+      <p class="results__summary" id="results-summary" aria-live="polite"></p>
+      <div id="results-body"></div>
+      <nav class="pagination" id="pagination" aria-label="Resource pages" hidden></nav>
+    </section>
+    </div>
+    </section>
+
+    <!-- NSP Channels: 5 boxes con enlaces externos (href provisionales) + boxes "NSP Audiovisuals" y "PER Learning videos"
+         alimentados por la hoja "PER Links" del Excel (js/channels.js). Estilos en css/channels.css. -->
+    <section class="channels" aria-labelledby="channels-title">
+      <h2 class="section-title" id="channels-title">NSP Channels</h2>
+      <div class="channels__body">
+        <!-- Estos 5 boxes se sustituyen por los de la hoja "PER Links" (Section = NSP Channels, Type of Resource = Channel)
+             en cuanto hay filas con ese tipo; hasta entonces se quedan los de respaldo. js/channels.js -->
+        <div class="channels__boxes" id="channel-boxes">
+          <a class="channel-box" href="#" target="_blank" rel="noopener noreferrer">
+            <span class="channel-box__title">IFRC Webpage</span>
+            <span class="channel-box__subtitle">Disaster Preparedness section</span>
+            <span class="visually-hidden">(opens in a new tab)</span>
+          </a>
+          <a class="channel-box" href="#" target="_blank" rel="noopener noreferrer">
+            <span class="channel-box__title">LinkedIn group</span>
+            <span class="channel-box__subtitle">To showcase experiences</span>
+            <span class="visually-hidden">(opens in a new tab)</span>
+          </a>
+          <a class="channel-box" href="#" target="_blank" rel="noopener noreferrer">
+            <span class="channel-box__title">YouTube playlist</span>
+            <span class="channel-box__subtitle">NS Preparedness playlist</span>
+            <span class="visually-hidden">(opens in a new tab)</span>
+          </a>
+          <a class="channel-box" href="#" target="_blank" rel="noopener noreferrer">
+            <span class="channel-box__title">Newsletter</span>
+            <span class="channel-box__subtitle">Quarterly published</span>
+            <span class="visually-hidden">(opens in a new tab)</span>
+          </a>
+          <a class="channel-box" href="#" target="_blank" rel="noopener noreferrer">
+            <span class="channel-box__title">Community of Practice</span>
+            <span class="channel-box__subtitle">NS Preparedness CoP</span>
+            <span class="visually-hidden">(opens in a new tab)</span>
+          </a>
+        </div>
+
+        <div class="channels__docs">
+          <section class="doc-card" aria-labelledby="learning-videos-title">
+            <h3 class="doc-card__title" id="learning-videos-title">PER Learning videos</h3>
+            <ul class="doc-card__list" id="learning-videos-list"></ul>
+          </section>
+          <section class="doc-card" aria-labelledby="audiovisuals-title">
+            <h3 class="doc-card__title" id="audiovisuals-title">NSP Audiovisuals</h3>
+            <ul class="doc-card__list" id="audiovisuals-list"></ul>
+          </section>
+          <section class="doc-card" aria-labelledby="articles-title">
+            <h3 class="doc-card__title" id="articles-title">NSP Articles</h3>
+            <ul class="doc-card__list" id="articles-list"></ul>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Datos (fase 1: Excel local). SheetJS solo lo necesita la fuente localExcel. -->
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script src="js/config.js"></script>
+  <!-- Regla general de los popups de idiomas (idiomas con enlace, solo-inglés directo, pestaña nueva). Antes que las secciones. -->
+  <script src="js/lang-popup.js"></script>
+  <script src="js/data/source-local-excel.js"></script>
+  <script src="js/data/schema.js"></script>
+  <script src="js/data/loader.js"></script>
+  <!-- Diseño / interfaz: solo habla con Catalogue.data -->
+  <script src="js/app.js"></script>
+  <!-- Sección "PER in the DRM Continuum": estática, independiente del catálogo. -->
+  <script src="js/continuum.js"></script>
+  <!-- Sección desplegable "NSP Reference materials". -->
+  <script src="js/reference.js"></script>
+  <!-- Sección "NSP Channels": el box de Audiovisuals lee de Catalogue.data. -->
+  <script src="js/channels.js"></script>
+</body>
+</html>
